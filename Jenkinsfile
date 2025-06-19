@@ -4,7 +4,7 @@
 
 pipeline {
 	agent {
-	    label 'centos7-java17'
+	    label 'rocky'
 	}
 	stages {
 		stage('Build') {
