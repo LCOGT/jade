@@ -97,7 +97,7 @@
             <tags>${git.commit.id.describe}</tags>
           </to>
           <from>
-            <image>gcr.io/distroless/java:8</image>
+            <image>eclipse-temurin:17.0.6_10-jdk</image>
           </from>
           <container>
             <mainClass>jade.Boot</mainClass>
