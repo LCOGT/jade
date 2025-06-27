@@ -20,6 +20,4 @@ services:
           -jade_core_nodeMonitoring_UDPNodeMonitoringService_host jade 
           -export-host localhost
 
-volumes:
-  jade-file:
 
