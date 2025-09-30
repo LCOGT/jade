@@ -1,0 +1,23 @@
+###########################################################################
+## Docker compose file to run site software in Docker
+## Requires a docker network to be setup first so that the
+## Control Interface can talk to Jade from separate docker-compose files.
+##      docker network create jade-net
+############################################################################
+
+services:
+  jade:
+    image: docker.lco.global/jade-platform-node:4.5.1-6-2-g8422472-dirty
+    container_name: jade
+    network_mode: host
+    entrypoint: ""
+    command: >
+      java -Djava.net.preferIPv4Stack=true -Dsun.net.inetaddr.ttl=-1 -cp @/app/jib-classpath-file jade.Boot -name tst 
+          -services "jade.core.nodeMonitoring.UDPNodeMonitoringService;jade.core.messaging.TopicManagementService;jade.core.event.NotificationService;" 
+          -jade_domain_df_autocleanup true 
+          -jade_core_AgentContainerImpl_enablemonitor true 
+          -jade_core_messaging_MessageManager_poolsize 50 
+          -jade_core_nodeMonitoring_UDPNodeMonitoringService_host jade 
+          -export-host localhost
+
+
