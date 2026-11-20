@@ -100,11 +100,12 @@ class OutBox {
 
 		synchronized (this) {
 			Box b = (Box) messagesByReceiver.get(receiverID);
+			boolean newlyEligible = b == null;
 			if (logActivated) {
 				String msgDebug = (b==null)? "No box for receiver "+receiverID.getName():"Box for receiver "+receiverID.getName()+" busy ?  "+b.isBusy();
 				myLogger.log(Logger.FINER,msgDebug);
 			}
-			if (b == null){
+			if (newlyEligible){
 				// There is no Box of messages for this receiver yet. Create a new one 
 				b = new Box(receiverID);
 				messagesByReceiver.put(receiverID, b);
@@ -125,8 +126,10 @@ class OutBox {
 			if (logActivated)
 				myLogger.log(Logger.FINER,"Message entered in box for receiver "+receiverID.getName());
 			b.addLast(new PendingMsg(msg, receiverID, ch, -1));
-			// Wakes up all deliverers
-			notifyAll();
+			// An existing box is already eligible or still owned by a deliverer.
+			if (newlyEligible) {
+				notify();
+			}
 		}
 		if (logActivated)
 			myLogger.log(Logger.FINER,"Exiting addLast for receiver "+receiverID.getName());
@@ -227,6 +230,7 @@ class OutBox {
 		}
 		else {
 			b.setBusy(false);
+			notify();
 			if (logActivated)
 				myLogger.log(Logger.FINER,"Freeing box for receiver "+receiverID.getName());
 		}
