@@ -9,7 +9,11 @@ public class DeliveryTracing extends HashMap<String, Object> {
 	private static final ThreadLocal<DeliveryTracing> tracing = new ThreadLocal<DeliveryTracing>();
 	
 	public static void beginTracing() {
-		tracing.set(new DeliveryTracing());
+		beginTracing(new DeliveryTracing());
+	}
+
+	static void beginTracing(DeliveryTracing context) {
+		tracing.set(context);
 	}
 	
 	public static void endTracing() {

@@ -322,23 +322,26 @@ class MessageManager {
 		}
 		
 		public void run() {
+			//#J2ME_EXCLUDE_BEGIN
+			DeliveryTracing trace = new DeliveryTracing();
+			//#J2ME_EXCLUDE_END
 			while (active) {
 				// Get a message from the OutBox (block until there is one)
 				PendingMsg pm = outBox.get();
-				//#J2ME_EXCLUDE_BEGIN
-				DeliveryTracing.beginTracing();
-				//#J2ME_EXCLUDE_END
-				
 				lastDeliveryStartTime = System.currentTimeMillis();
-				GenericMessage msg = pm.getMessage();
-				AID receiverID = pm.getReceiver();
-
-				// Deliver the message
 				Channel ch = pm.getChannel();
-				if (ch != null) {
+				if (ch == null) {
+					// Shutdown enqueues dummy messages to release waiting workers.
+					continue;
+				}
+
+				//#J2ME_EXCLUDE_BEGIN
+				DeliveryTracing.beginTracing(trace);
+				try {
+				//#J2ME_EXCLUDE_END
+					GenericMessage msg = pm.getMessage();
+					AID receiverID = pm.getReceiver();
 					delivering = true;
-					// Ch is null only in the case of dummy messages used to make the deliverers terminate.
-					// See shutdown() method
 					try {
 						ch.deliverNow(msg, receiverID);
 					}
@@ -392,10 +395,16 @@ class MessageManager {
 						// Should never happen, but Deliverers must never die and so...
 						myLogger.log(Logger.WARNING, "Unexpected error computing message delivery time", e);
 					}
+				//#J2ME_EXCLUDE_BEGIN
 				}
+				finally {
+					trace.clear();
+					DeliveryTracing.endTracing();
+				}
+				//#J2ME_EXCLUDE_END
 			}
 			
-			myLogger.log(Logger.CONFIG, "Deliverer Thread "+name+ " terminated");
+			myLogger.log(Logger.CONFIG, "Deliverer Thread "+name+" terminated");
 		}
 		
 		long getServedCnt() {
