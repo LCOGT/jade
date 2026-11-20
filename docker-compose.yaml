@@ -7,7 +7,7 @@
 
 services:
   jade:
-    image: docker.lco.global/jade-platform-node:4.5.1-6-2-g8422472-dirty
+    image: docker.lco.global/jade-platform-node:4.5.1-8
     container_name: jade
     network_mode: host
     entrypoint: ""
